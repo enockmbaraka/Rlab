@@ -111,7 +111,7 @@ This chapter focuses on exploratory data analysis, positioning visualization as 
 
 The authors structure EDA around three core questions:
 
-1.   How do variables vary?
+1.  How do variables vary?
 
 2.  Are there unusual values?
 
@@ -332,4 +332,420 @@ flights |>
   ggplot(aes(x = hour, y = prop_cancelled)) +
   geom_line(color = "grey50") + 
   geom_point(aes(size = n))
+```
+
+\newpage
+
+# **Chapter 14: Strings**
+
+This chapter addresses string data, which is pervasive in real-world datasets but often messy and inconsistent.
+
+The chapter introduces the [stringr]{.underline} package, which provides a consistent and readable interface for string operations. Topics include:
+
+-   Creating and combining strings,
+
+-   Detecting patterns,
+
+-   Extracting and modifying substrings.
+
+The authors stress that text manipulation is essential for tasks such as cleaning names, parsing identifiers, and standardizing categorical values.
+
+Example 1
+
+```{r}
+library(tidyverse)
+library(babynames)
+```
+
+```{r}
+string1 <- "R is fascinating"
+string2 <- 'It is best for statistical analysis'
+string1
+string2
+```
+
+Example 2
+
+```{r}
+str_c("x", "y")
+str_c("x", "y", "z")
+str_c("Hello ", c("John", "Susan"))
+```
+
+Example 3
+
+```{r}
+str_flatten(c("x", "y", "z"))
+str_flatten(c("x", "y", "z"), ", ")
+str_flatten(c("x", "y", "z"), ", ", last = ", and ")
+```
+
+Example 4
+
+```{r}
+df1 <- tibble(x = c("a,b,c", "d,e", "f"))
+df1 |> 
+  separate_longer_delim(x, delim = ",")
+```
+
+Example 5
+
+```{r}
+df2 <- tibble(x = c("1211", "131", "21"))
+df2 |> 
+  separate_longer_position(x, width = 1)
+```
+
+\newpage
+
+# **Chapter 15: Regular Expressions**
+
+This chapter builds on chapter 14 by introducing regular expressions (regex), a powerful language for pattern matching.
+
+Rather than presenting regex as an abstract formalism, the authors focus on practical usage: detecting patterns, extracting components, and validating text formats.
+
+The chapter also acknowledges the cognitive difficulty of regex and encourages gradual mastery through practice and reference rather than memorization. Regular expressions are positioned as a force multiplier, enabling analysts to solve complex text problems concisely and efficiently.
+
+Example 1
+
+```{r}
+library(tidyverse)
+library(babynames)
+```
+
+```{r}
+str_view(fruit, "berry")
+```
+
+Example 2
+
+```{r}
+str_view(c("a", "ab", "ae", "bd", "ea", "eab"), "a.")
+```
+
+Example 3
+
+```{r}
+str_view(c("a", "ab", "abb"), "ab?")
+```
+
+Example 4
+
+```{r}
+str_detect(c("a", "b", "c"), "[aeiou]")
+```
+
+Example 5
+
+```{r}
+babynames |> 
+  filter(str_detect(name, "x")) |> 
+  count(name, wt = n, sort = TRUE)
+```
+
+# **Chapter 16: Factors**
+
+This chapter focuses on categorical data, represented in R as factors.
+
+The chapter explains why factors exist: they encode not just values, but also order and reference levels, which directly affect summaries, models, and visualizations.
+
+It teaches us how to:
+
+-   Reorder factor levels,
+
+-   Relabel categories,
+
+-   Work with ordered factors.
+
+Example 1
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+x1 <- c("Dec", "Apr", "Jan", "Mar")
+x1
+sort(x1)
+factor(x1)
+fct(x1)
+```
+
+Example 2
+
+```{r}
+month_levels <- c(
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+)
+```
+
+```{r}
+y1 <- factor(x1, levels = month_levels)
+y1
+sort(y1)
+```
+
+Example 3
+
+```{r}
+gss_cat |>
+  count(race)
+```
+
+Example 4
+
+```{r}
+relig_summary <- gss_cat |>
+  group_by(relig) |>
+  summarize(
+    tvhours = mean(tvhours, na.rm = TRUE),
+    n = n()
+  )
+
+ggplot(relig_summary, aes(x = tvhours, y = relig)) +
+  geom_point()
+```
+
+\newpage
+
+# Chapter 17: Dates and Times
+
+This chapter addresses temporal data, one of the most complex data types to handle correctly.
+
+Using the `lubridate` package, the authors explain how to parse dates and datetimes, extract components, calculate time spans, and handle time zones.
+
+The chapter highlights common pitfalls, such as ambiguous date formats and daylight saving time issues, reinforcing the need for explicit and careful handling of time.
+
+This chapter equips us with expertise to analyze trends, durations, and seasonality with confidence.
+
+Example 1
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+```{r}
+today()
+now()
+```
+
+Example 2
+
+```{r}
+csv <- "
+  date,datetime
+  2022-01-02,2022-01-02 05:12
+"
+read_csv(csv)
+```
+
+Example 3
+
+```{r}
+csv <- "
+  date
+  01/02/15
+"
+
+read_csv(csv, col_types = cols(date = col_date("%m/%d/%y")))
+
+read_csv(csv, col_types = cols(date = col_date("%d/%m/%y")))
+
+read_csv(csv, col_types = cols(date = col_date("%y/%m/%d")))
+```
+
+Example 4
+
+```{r}
+ymd("2017-01-31")
+mdy("January 31st, 2017")
+dmy("31-Jan-2017")
+```
+
+Example 5
+
+```{r}
+flights |> 
+  select(year, month, day, hour, minute)
+```
+
+\newpage
+
+# Chapter 18: Missing Values
+
+This chapter focuses entirely on **missing data**, treating it as an analytical issue rather than a nuisance.
+
+The authors distinguish between:
+
+-   Explicit missing values (NA),
+
+-   Implicit missing values (absent combinations).
+
+They explain how missingness can bias summaries and models if handled carelessly and demonstrate tidyverse tools for identifying, removing, or explicitly representing missing data.
+
+The chapter emphasizes transparency and intentionality in handling missing values.
+
+Example 1
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+treatment <- tribble(
+  ~person,           ~treatment, ~response,
+  "Derrick Whitmore", 1,         7,
+  NA,                 2,         10,
+  NA,                 3,         NA,
+  "Katherine Burke",  1,         4
+)
+```
+
+Example 2
+
+```{r}
+treatment |>
+  fill(everything())
+```
+
+Example 3
+
+```{r}
+x <- c(1, 4, 5, 7, NA)
+coalesce(x, 0)
+```
+
+Example 4
+
+```{r}
+x <- c(1, 4, 5, 7, -99)
+na_if(x, -99)
+```
+
+\newpage
+
+# Chapter 19: Joins
+
+This covers **joining data tables**, a fundamental operation in relational data analysis.
+
+The chapter explains keys, relationships, and different types of joins (left, right, inner, full). It also explores how joins work conceptually and why they sometimes produce unexpected results.
+
+Non-equi joins are introduced for advanced matching scenarios.
+
+This chapter equips readers to combine datasets accurately and confidently, a critical skill in applied data science.
+
+Example 1
+
+```{r}
+library(tidyverse)
+library(nycflights13)
+```
+
+```{r}
+planes |> 
+  count(tailnum) |> 
+  filter(n > 1)
+
+weather |> 
+  count(time_hour, origin) |> 
+  filter(n > 1)
+```
+
+Example 2
+
+```{r}
+planes |> 
+  filter(is.na(tailnum))
+
+
+weather |> 
+  filter(is.na(time_hour) | is.na(origin))
+```
+
+Example 3
+
+```{r}
+flights |> 
+  count(time_hour, carrier, flight) |> 
+  filter(n > 1)
+```
+
+```{r}
+airports |>
+  count(alt, lat) |> 
+  filter(n > 1)
+```
+
+\newpage
+
+# Chapter 20: Spreadsheets
+
+This chapter addresses importing data from spreadsheets, acknowledging that Excel and Google Sheets remain dominant data storage formats.
+
+The chapter explains how to read, write, and manage spreadsheet data using R, while also warning about common spreadsheet issues such as hidden types, merged cells, and inconsistent formatting.
+
+It bridges the gap between real-world data practices and reproducible analysis, reinforcing R’s role as an analytical backbone rather than a replacement for spreadsheets.
+
+Example 1
+
+```{r}
+library(readxl)
+library(tidyverse)
+library(writexl)
+```
+
+```{r}
+students <- read_excel("students.xlsx")
+students
+```
+
+Example 2
+
+```{r}
+read_excel(
+  "students.xlsx",
+  col_names = c("student_id", "full_name", "favourite_food", "meal_plan", "age"),
+  skip = 1
+)
+```
+
+Example 3
+
+```{r}
+students <- read_excel(
+  "students.xlsx",
+  col_names = c("student_id", "full_name", "favourite_food", "meal_plan", "age"),
+  skip = 1,
+  na = c("", "N/A"),
+  col_types = c("numeric", "text", "text", "text", "text")
+)
+
+students <- students |>
+  mutate(
+    age = if_else(age == "five", "5", age),
+    age = parse_number(age)
+  )
+
+students
+```
+
+Example 4
+
+```{r}
+bake_sale <- tibble(
+  item     = factor(c("brownie", "cupcake", "cookie")),
+  quantity = c(10, 5, 8)
+)
+
+bake_sale
+```
+
+```{r}
+write_xlsx(bake_sale, path = "bake-sale.xlsx")
+```
+
+```{r}
+read_excel("bake-sale.xlsx")
 ```
