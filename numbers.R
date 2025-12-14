@@ -226,5 +226,64 @@ flights |>
 
 
 # Numeric summaries
-## Center
+## Center-mean(), median()
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    mean = mean(dep_delay, na.rm = TRUE),
+    median = median(dep_delay, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  ) |> 
+  ggplot(aes(x = mean, y = median)) + 
+  geom_abline(slope = 1, intercept = 0, color = "white", linewidth = 2) +
+  geom_point()
 
+## Minimum, maximum, and quantiles
+flights |>
+  group_by(year, month, day) |>
+  summarize(
+    max = max(dep_delay, na.rm = TRUE),
+    q95 = quantile(dep_delay, 0.95, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Spread
+## Two commonly used summaries are the standard deviation, sd(x), 
+## and the inter-quartile range, IQR().
+flights |> 
+  group_by(origin, dest) |> 
+  summarize(
+    distance_iqr = IQR(distance), 
+    n = n(),
+    .groups = "drop"
+  ) |> 
+  filter(distance_iqr > 0)
+
+# Distributions
+flights |>
+  filter(dep_delay < 120) |> 
+  ggplot(aes(x = dep_delay, group = interaction(day, month))) + 
+  geom_freqpoly(binwidth = 5, alpha = 1/5)
+
+# Positions
+## first(x), last(x), and nth(x, n).
+flights |> 
+  group_by(year, month, day) |> 
+  summarize(
+    first_dep = first(dep_time, na_rm = TRUE), 
+    fifth_dep = nth(dep_time, 5, na_rm = TRUE),
+    last_dep = last(dep_time, na_rm = TRUE)
+  )
+
+##
+flights |> 
+  group_by(year, month, day) |> 
+  mutate(r = min_rank(sched_dep_time)) |> 
+  filter(r %in% c(1, max(r)))
+
+## With mutate()
+## x / sum(x) calculates the proportion of a total.
+## (x - mean(x)) / sd(x) computes a Z-score (standardized to mean 0 and sd 1).
+## (x - min(x)) / (max(x) - min(x)) standardizes to range [0, 1].
+## x / first(x) computes an index based on the first observation.
