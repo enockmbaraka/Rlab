@@ -1,0 +1,88 @@
+---
+title: "Your title"
+author: "Your name goes here"
+date: "2025-11-15"
+mainfont: Times New Roman
+format:
+    pdf:
+      documentclass: article
+      geometry:
+        - margin=1in
+      fontsize: 12pt
+      linestretch: 2
+      include-in-header:
+        text: |
+          \usepackage{etoolbox}
+          \AtBeginEnvironment{verbatim}{\linespread{1}\selectfont\small}
+          \AtBeginEnvironment{Highlighting}{\linespread{1}\selectfont\small}
+      include-before-body: 
+        text: |
+          \begin{center}
+          \text{SDS6/12345/2025}
+          
+          \vspace{0.5em}
+          
+          \text{Department of Mathematics}
+          
+          \text{Faculty of Science and Technology}
+          \end{center}
+          \vspace{2em}
+editor: visual
+bibliography: example_references.bib
+link-citations: true
+---
+
+\newpage
+\tableofcontents
+\newpage
+
+# Introduction
+
+Originally developed in the early 1990s by Ross Ihaka and Robert Gentleman to support the teaching of introductory statistics, R [@rcoreteam2025b] has since evolved into a key language in data science, widely used for data cleaning, analysis, visualization, and reporting of results...
+
+It also compares the approaches recommended in the book with my prior practices for instance, contrasting the *tidyverse* philosophy with the *data.table* approach, to illustrate how these perspectives align or differ in the context of data **manipulation** and *analysis*.
+
+# Overview of the chapters
+
+## Chapter 1: Data Visualization
+
+The book opens with an introduction to data visualization in R. To use the package *ggplot2* in R, you can install it directly or install it through *tidyverse*. *tidyverse* is a collection of packages in R that are used for importing, cleaning, modelling and visualizing data in R. You can install packages as follows:
+
+```{r}
+installed.packages("tidyverse")
+```
+
+Once the package is installed, you must "call" it in R to use the functions that it provides. We do that using the function `library()` as follows;
+
+```{r}
+library(tidyverse)
+```
+
+Tidyverse produces some messages and warning once you load it, and in Quarto, you can silence those messages using the `#| warning: false` code chunk option as follows:
+
+```{r}
+#| warning: false
+library(tidyverse)
+```
+
+There a lot more options for Quarto code chunks and you can learn more about them [using this link](https://quarto.org/docs/computations/execution-options.html#figure-options)
+
+using the *ggplot2* ... mostly using the function `ggplot() +`. Here, we practice with the data `mtcars` in R [^1]
+
+[^1]: The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+
+```{r}
+#| label: fig-scatter-plot
+#| fig-cap: "A scatter plot of Miles Per Gallon aganist Weight "
+#| 
+library(ggplot2)
+ggplot(mtcars, aes(x = mpg, y = wt)) +
+  geom_point() +
+  theme_minimal()
+```
+
+The above code chunk produced @fig-scatter-plot. You car read more about [Quarto from this link](https://quarto.org).
+
+\newpage
+
+# References
